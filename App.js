@@ -1,20 +1,39 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-i
+import 'react-native-gesture-handler';
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+const Context = React.createContext('default Value')
+
+
+// import MyStack from './navigator/PlaceNavigator';
+
+
+import newPlaceForm from './screens/newPlaceForm';
+
+// import NewPlaceLocation from './components/NewPlaceLocation'
+import PlaceList from './screens/PlaceList';
+
+
+
+const Stack = createStackNavigator();
 
 
 
 
 
-import StackScreen from './navigator/PlaceNavigator'
 
 
-
-
-
-export default function App() {
+ const App = () => {
   return (
-     <StackScreen />
-      )
-}
-
+    <Context.Provider>
+    <NavigationContainer>
+    <Stack.Navigator>
+     
+      <Stack.Screen name="Profile" component={newPlaceForm} />
+      <Stack.Screen name="PlaceList" component={PlaceList} />
+    </Stack.Navigator>
+ </NavigationContainer>
+ </Context.Provider>
+);
+};
+export default App;

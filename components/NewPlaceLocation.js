@@ -5,7 +5,7 @@ import MapView from 'react-native-maps';
 import * as Location from 'expo-location'
 import * as Permissions from 'expo-permissions'
 
-import Map
+
 import newPlaceForm from './newPlaceForm';
 
 export default newPlaceForm = () =>{
