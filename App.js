@@ -4,6 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 const Context = React.createContext('default Value')
 
+import HeaderButton from './components/HeaderButton'
+
 
 // import MyStack from './navigator/PlaceNavigator';
 
@@ -26,11 +28,21 @@ const Stack = createStackNavigator();
  const App = () => {
   return (
     <Context.Provider>
-    <NavigationContainer>
-    <Stack.Navigator>
+    <NavigationContainer >
+    <Stack.Navigator  initialRouteName="Add a new place">
      
-      <Stack.Screen name="Profile" component={newPlaceForm} />
-      <Stack.Screen name="PlaceList" component={PlaceList} />
+      <Stack.Screen name="Add a new place" component={newPlaceForm} />
+      <Stack.Screen name="PlaceList" options={{
+
+        headerRight: () => (
+
+          <HeaderButton
+            onPress={() => NavigationContainer.navigate('Add a new place')}
+            title="Info"
+            color="#fff"
+          />
+          )
+      }}  component={PlaceList}/>
     </Stack.Navigator>
  </NavigationContainer>
  </Context.Provider>

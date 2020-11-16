@@ -1,25 +1,27 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Dimensions, Button, Image } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Button, Image, TextInput } from 'react-native';
 import MapView from 'react-native-maps';
 import * as Location from 'expo-location'
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions'
 import * as ImagePicker from 'expo-image-picker';
+import { firebase} from '../db'
 
 import Colors from '../constants/Colors';
 
 
-export default newPlaceForm = () =>{
+const db = firebase.firestore
+
+export default newPlaceForm = ({navigation}) =>{
 
 
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
 
-    
-
-
+    const [titleValue, setTitleValue] = useState('');
     const  [pickedImage, setPickedImage ] = useState()
+    const [ fileUrl , setFileUrl] = useState(null)
 
     const verifyPermission = async () => {
       const result = await  Permissions.askAsync(
@@ -55,10 +57,43 @@ const takeImageHandler = async () => {
 
 }
 
- const SavePlaceHandle = () => {
-   console.log('testing save')
- }
 
+
+
+ const titleChangeHandler = text => {
+  setTitleValue(text);
+}
+
+
+
+//Save a new Place in fireStore
+
+const onSubmitHandler = async () => {
+    const file = pickedImage.[0]
+    const storageRef = firebase.storage().ref().child("Places/" + file.name)
+    const fileRef = storageRef.child(file.name)
+    await fileRef.put(file)
+    setFileUrl( await fileRef.getDownloadURL())
+
+    
+    const Name = titleValue
+    const latitude = location.latitude
+    const longitude = location.longitude
+    db.collection("Places").doc({
+      Name,
+      latitude,
+      longitude
+    }).set({
+      Name: Name,
+      latitude: latitude,
+      longitude: longitude,
+      image: fileUrl
+    })
+
+    navigation.navigate('PlaceList')
+}
+
+      
 
 
    
@@ -107,7 +142,12 @@ const takeImageHandler = async () => {
      if(location) {
  return (
      <View>
-
+     <TextInput
+      placeholder="name of the place here"
+       style={styles.TextInput}
+        onChangeText={titleChangeHandler}
+        value={titleValue}
+      />
     <MapView
       showsUserLocation
       style={ styles.MapView}
@@ -124,7 +164,7 @@ const takeImageHandler = async () => {
     <View style={styles.imagePicker}> 
     <View style={ styles.imagePreview}>
     {!pickedImage ? 
-    <Text>'No Image yet!'</Text> :
+    <Text>'No Image yet! Press the Button below to start the cam!'</Text> :
     <Image style={styles.image} source={{uri: pickedImage}}/>
     } 
     
@@ -135,7 +175,7 @@ const takeImageHandler = async () => {
     />
     <Button title="Save the Place"
     color={Colors.Orange}
-    onPress={SavePlaceHandle}
+    onPress={onSubmitHandler}
     />
 </View>
 
@@ -211,5 +251,18 @@ imagePreview: {
 image: {
     width: '100%',
     height: '100%'
+},
+label: {
+  fontSize: 18,
+  marginBottom: 15
+},
+TextInput: {
+  borderBottomColor: '#ccc',
+  borderBottomWidth: 2,
+  marginBottom: 10,
+  paddingVertical: 4,
+  paddingHorizontal: 3,
+  alignContent: 'center'
+  
 }
 });
