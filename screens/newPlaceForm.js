@@ -11,7 +11,7 @@ import { firebase} from '../db'
 import Colors from '../constants/Colors';
 
 
-const db = firebase.firestore
+const db = firebase.storage
 
 export default newPlaceForm = ({navigation}) =>{
 
@@ -50,7 +50,7 @@ const takeImageHandler = async () => {
         
 
    });
-   
+    console.log(image)
    setPickedImage(image.uri);
   //  props.onImageTaken(image.uri);
         
@@ -69,9 +69,9 @@ const takeImageHandler = async () => {
 //Save a new Place in fireStore
 
 const onSubmitHandler = async () => {
-    const file = pickedImage.[0]
-    const storageRef = firebase.storage().ref().child("Places/" + file.name)
-    const fileRef = storageRef.child(file.name)
+    const file = await pickedImage.uri
+    const storageRef = firebase.storage().ref().child("Places/")
+    const fileRef = storageRef.child('Places')
     await fileRef.put(file)
     setFileUrl( await fileRef.getDownloadURL())
 

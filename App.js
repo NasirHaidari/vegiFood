@@ -15,7 +15,7 @@ import newPlaceForm from './screens/newPlaceForm';
 // import NewPlaceLocation from './components/NewPlaceLocation'
 import PlaceList from './screens/PlaceList';
 
-
+import PlaceListOnMap from './screens/PlaceListOnMap'
 
 const Stack = createStackNavigator();
 
@@ -29,8 +29,8 @@ const Stack = createStackNavigator();
   return (
     <Context.Provider>
     <NavigationContainer >
-    <Stack.Navigator  initialRouteName="Add a new place">
-     
+    <Stack.Navigator  initialRouteName="PlaceListOnMap">
+     <Stack.Screen name="PlaceListOnMap" component={PlaceListOnMap} />
       <Stack.Screen name="Add a new place" component={newPlaceForm} />
       <Stack.Screen name="PlaceList" options={{
 
@@ -43,6 +43,7 @@ const Stack = createStackNavigator();
           />
           )
       }}  component={PlaceList}/>
+      
     </Stack.Navigator>
  </NavigationContainer>
  </Context.Provider>

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
+    "@mapbox/polyline": "^1.1.1",
     "@react-native-community/masked-view": "0.1.10",
     "@react-navigation/bottom-tabs": "^5.11.1",
     "@react-navigation/native": "^5.8.9",
@@ -33,7 +34,8 @@
     "react-navigation-header-buttons": "^6.0.0"
   },
   "devDependencies": {
-    "@babel/core": "~7.9.0"
+    "@babel/core": "~7.9.0",
+    "json-loader": "^0.5.7"
   },
   "private": true
 }
