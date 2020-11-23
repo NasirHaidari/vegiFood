@@ -1,16 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Image  } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline, Callout} from 'react-native-maps';
 import * as Location from 'expo-location'
 import * as Permissions from 'expo-permissions'
 import { Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('screen')
-import Polyline from '@mapbox/polyline' 
+// import Polyline from '@mapbox/polyline' 
 import ENV from '../env'
-
+import { decode } from "@mapbox/polyline";
 const Locations = require('../locations.json')
 import markerIcon from '../assets/plate.bmp'
+
+
 
 export default PlaceListOnMap = () =>{
   
@@ -18,6 +20,8 @@ export default PlaceListOnMap = () =>{
 const [location, setLocation] = useState(null);
 const [errorMsg, setErrorMsg] = useState(null);
 const [locations, setLocations] = useState(null)
+const [ coords, setCoords] = useState(null);
+const [locs, setLocs] = useState(null)
 
 
  
@@ -33,75 +37,72 @@ const [locations, setLocations] = useState(null)
 
       let location = await Location.getCurrentPositionAsync({});
       setLocation({latitude: location.coords.latitude, longitude: location.coords.longitude});
+      
+      setLocations(location)
     })();
    
+    console.log('here is outside(1)', location)
+  
+
+
+
+  
+
+
+
+  
+
+
+  getInfo= async props => {
+    console.log('props inside of getInfo', props)
+    const myLocation = await props[1].coords
+    const dest = await props[0].coords
+    console.log('my coords inside getInfo',myLocation)
+    // setLocs({
+    //   latitude: myLocation.latitude,
+    //   longitude: myLocation.longitude,
+    //   desLatitude: dest.latitude,
+    //   desLongitude: dest.longitude
+    // })
     
-   LocationsHandler = () =>{
-   
-   setLocations(Locations)
- }
- 
-//   LocationsHandler()
+    // const startLoc = `${latitude},${longitude}`
+    // const desLoc = [locs.desLatitude, locs.desLongitude]
+    const startLoc = await props[1]
+    const desLoc = await props[0].coords
+    console.log('startLoc is :', startLoc,
+    'desLoc is :', desLoc)
+    try {
+          const resp = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${desLoc}&key=AIzaSyCJg8LtFVPMpu7uiJLE37AQ5ZbzpafeWx0`)
+          const respJson = await resp.json();
+          const response = respJson.routes[0]
+          console.log('this is a ',resp, respJson, response)
+          const distanceTime = response.legs[0]
+          const distance = distanceTime.distance.text
+          const time = distanceTime.duration.text
+          const points = Polyline.decode(respJson.routes[0].overview_polyline.points);
+          const coords = points.map(point => {
+            return {
+              latitude: point[0],
+              longitude: point[1]
+            }
+          })
+          setCoords({ coords, distance, time })
+        } catch(error) {
+          console.log('Error: ', error)
+        }
+  }
 
-// getDirections = (location, Locations.map((desLoc)=>
-// desLoc ))
+ const Poly = async  () => {
 
-
-
+    return ( <Polyline coordinates= {[await location.coords,await placeInfo.coords]} />)
+  }
   
-// getDirections= async(startLoc, desLoc) => {
-//   try {
-//     const resp = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${desLoc}&key=${ENV.googleApiKey}`)
-//     const respJson = await resp.json();
-//     const response = respJson.routes[0]
-//     const distanceTime = response.legs[0]
-//     const distance = distanceTime.distance.text
-//     const time = distanceTime.duration.text
-//     const points = Polyline.decode(respJson.routes[0].overview_polyline.points);
-//     const coords = points.map(point => {
-//       return {
-//         latitude: point[0],
-//         longitude: point[1]
-//       }
-//     })
-//     setCoords({ coords, distance, time })
-//   } catch(error) {
-//     console.log('Error: ', error)
-//   }
-// }
-
-
-
-
-  
-
-  // renderMarkers = () => {
-  //   setLocations(Locations)
-
-   
-  //    return(
-  //     <View>
-  //     { Locations.map((item, name) => 
-        
-        
-        
-  //         <Marker 
-  //         key={name}
-  //         coordinate={{latitude: item.coords.latitude, longitude: item.coords.longitude}}
-  //         onPress={onMarkerPress(Locations)}
-  //         image={require('../assets/marker.bmp')}
-  //         />
-        
-  //     )}
-  //     </View>
-  //   )
-  // }
       
   },[])
 
-     
+     console.log('here is outside of useEffect (2)', location)
 
-// console.log(location)
+
 
 
 let text = 'Waiting..';
@@ -128,13 +129,13 @@ return (
 {Locations.map((place, name) => {
   return  (<MapView.Marker
     key={name}
-    onPress={() => alert('fire')}
     coordinate={place.coords}
     
     pinColor='green'
-    
+    onPress={()=> getInfo([place, location])}
     />)
 })}
+
 
 </MapView>
 
